@@ -238,6 +238,86 @@ md"""
 As seen above, the corresponding method of `shape` is dispatched based on the subtype of each `Thing`. *Multiple* dispatch is when this is done for more than one signature of a given method, so let's do that next!
 """
 
+# ╔═╡ 92bc620c-462d-11eb-0837-47dd55d6734b
+md"""
+**Collisions**
+"""
+
+# ╔═╡ 982996c4-462d-11eb-1508-65a7d25618dc
+md"""
+For now, we are just treating our spaceships and asteroids as simple rectangles. A collision would then be when two rectangles overlap, so let's set that up.
+"""
+
+# ╔═╡ c492f96c-462d-11eb-2928-2984f7a9d810
+begin
+struct Rectangle
+	top::Int
+	left::Int
+	bottom::Int
+	right::Int
+end
+# Note: position refers to bottom left corner of thing
+Rectangle(p::Position, s::Size) = Rectangle(p.y+s.height, p.x, p.y, p.x+s.width)
+end
+
+# ╔═╡ f9d80824-462d-11eb-1881-c3c64d5c5e75
+# Check if the two rectangles (A & B) overlap
+function overlap(A::Rectangle, B::Rectangle)
+	return 
+	A.left < B.right &&
+	A.right > B.left &&
+	A.top > B.bottom &&
+	A.bottom < B.top
+end
+
+# ╔═╡ 77a957a8-462e-11eb-2335-4b5e3ef05f89
+function collide(A::Thing, B::Thing)
+	println("Checking collision of thing vs. thing")
+	rectA = Rectangle(position(A), size(A))
+	rectB = Rectangle(position(B), size(B))
+	return overlap(rectA, rectB)
+end
+
+# ╔═╡ 8a9d51ae-4631-11eb-0f4e-6f08949371ad
+function collide(A::Spaceship, B::Spaceship)
+	println("Checking collision of spaceship vs. spaceship")
+	return true # Just a test
+end
+
+# ╔═╡ f0b580ea-4631-11eb-1381-5572d7524cdb
+function collide(A::Asteroid, B::Thing)
+	println("Checking collision of asteroid vs. thing")
+	return true # Just a test
+end
+
+# ╔═╡ 12230fba-4632-11eb-28bd-9b820e28e99f
+function collide(A::Thing, B::Asteroid)
+	println("Checking collision of thing vs. asteroid")
+	return true # Just a test
+end
+
+# ╔═╡ 69036898-4632-11eb-0821-e7fdf7d0313e
+function collide(A::Asteroid, B::Asteroid)
+	println("Checking collision of asteroid vs. asteroid")
+	return true # Just a test
+end
+
+# ╔═╡ bf99d72c-462e-11eb-16c1-0d0503dc7c31
+let
+#with_terminal() do
+	s1 = Spaceship(Position(0, 0), Size(10, 10), Laser)
+	s2 = Spaceship(Position(5, 0), Size(10, 10), Laser)
+	a1 = Asteroid(Position(0, 5), Size(10, 10))
+	a2 = Asteroid(Position(5, 5), Size(10, 10))
+	[s1, s2, a2]
+end
+
+# ╔═╡ 86e83e7c-4634-11eb-1763-5358e9722429
+Spaceship(Position(0, 0), Size(10, 10), Laser)
+
+# ╔═╡ 23e89648-4634-11eb-2f1a-0d8d67a79266
+isconcretetype(Thing)
+
 # ╔═╡ Cell order:
 # ╟─0c8eb4f0-4592-11eb-2ee7-d94178e464ca
 # ╠═f1785c3a-458b-11eb-1e6b-a70c50cb06ad
@@ -280,4 +360,16 @@ As seen above, the corresponding method of `shape` is dispatched based on the su
 # ╠═9c0e3b22-45c5-11eb-0be3-45fc928a39ad
 # ╠═9c255456-45c5-11eb-0a23-af107b8276e1
 # ╟─476dde24-45c5-11eb-0cce-450ebf84ab47
+# ╟─92bc620c-462d-11eb-0837-47dd55d6734b
+# ╟─982996c4-462d-11eb-1508-65a7d25618dc
+# ╠═c492f96c-462d-11eb-2928-2984f7a9d810
+# ╠═f9d80824-462d-11eb-1881-c3c64d5c5e75
+# ╠═77a957a8-462e-11eb-2335-4b5e3ef05f89
+# ╠═8a9d51ae-4631-11eb-0f4e-6f08949371ad
+# ╠═f0b580ea-4631-11eb-1381-5572d7524cdb
+# ╠═12230fba-4632-11eb-28bd-9b820e28e99f
+# ╠═69036898-4632-11eb-0821-e7fdf7d0313e
+# ╠═bf99d72c-462e-11eb-16c1-0d0503dc7c31
+# ╠═86e83e7c-4634-11eb-1763-5358e9722429
+# ╠═23e89648-4634-11eb-2f1a-0d8d67a79266
 # ╠═84993928-458f-11eb-0c83-fd8e29c8c59f
