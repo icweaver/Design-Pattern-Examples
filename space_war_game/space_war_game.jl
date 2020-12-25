@@ -4,7 +4,7 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 84993928-458f-11eb-0c83-fd8e29c8c59f
+# ╔═╡ cc7d1de4-464e-11eb-3572-e38471f5f658
 using PlutoUI
 
 # ╔═╡ 0c8eb4f0-4592-11eb-2ee7-d94178e464ca
@@ -271,7 +271,8 @@ function overlap(A::Rectangle, B::Rectangle)
 end
 
 # ╔═╡ 77a957a8-462e-11eb-2335-4b5e3ef05f89
-function collide(A::Thing, B::Thing)
+# Generic fallback
+function collide(A::T, B::T) where T <: Thing
 	println("Checking collision of thing vs. thing")
 	rectA = Rectangle(position(A), size(A))
 	rectB = Rectangle(position(B), size(B))
@@ -279,8 +280,14 @@ function collide(A::Thing, B::Thing)
 end
 
 # ╔═╡ 8a9d51ae-4631-11eb-0f4e-6f08949371ad
-function collide(A::Spaceship, B::Spaceship)
+function collide(A::T, B::T) where T <: Spaceship
 	println("Checking collision of spaceship vs. spaceship")
+	return true # Just a test
+end
+
+# ╔═╡ 00b1c82a-463c-11eb-3cea-d3e6dfe37e5c
+function collide(A::T, B::T) where T <: Asteroid
+	println("Checking collision of asteroid vs. asteroid")
 	return true # Just a test
 end
 
@@ -296,12 +303,6 @@ function collide(A::Thing, B::Asteroid)
 	return true # Just a test
 end
 
-# ╔═╡ 69036898-4632-11eb-0821-e7fdf7d0313e
-function collide(A::Asteroid, B::Asteroid)
-	println("Checking collision of asteroid vs. asteroid")
-	return true # Just a test
-end
-
 # ╔═╡ bf99d72c-462e-11eb-16c1-0d0503dc7c31
 let
 #with_terminal() do
@@ -312,13 +313,29 @@ let
 	[s1, s2, a2]
 end
 
-# ╔═╡ 86e83e7c-4634-11eb-1763-5358e9722429
-Spaceship(Position(0, 0), Size(10, 10), Laser)
+# ╔═╡ c30d2648-464c-11eb-2bda-dd84facbbaa4
+md"""
+**Interface**
+"""
 
-# ╔═╡ 23e89648-4634-11eb-2f1a-0d8d67a79266
-isconcretetype(Thing)
+# ╔═╡ c9aebf0c-464c-11eb-2de2-8981885e767d
+md"""
+We can also make an interface for the kind of game logic we have been developing. This make it more clear how a user might use this game and make their own extensions. The interface is defined in `Vehicle.jl` and extended in `FighterJets.jl`. In this directory, we could then open up a `julia` shell with `JULIA_LOAD_PATH=".:$JULIA_LOAD_PATH" julia` and run the following:
+```julia
+julia> using Vehicle, FighterJets
+julia> fj = FighterJet(false, 0, (0, 0))
+julia> go!(fj, :mars)
+```
+```
+Powered on: FighterJet(true, 0.0, (0.0, 0.0))
+Changed direction to 0.52: FighterJet(true, 0.52, (0.0, 0.0))
+Changed direction to: 0.52: FighterJet(true, 0.52, (867.82, 496.88))
+Powered off: FighterJet(false, 0.52, (867.82, 496.88))
+```
+"""
 
 # ╔═╡ Cell order:
+# ╠═cc7d1de4-464e-11eb-3572-e38471f5f658
 # ╟─0c8eb4f0-4592-11eb-2ee7-d94178e464ca
 # ╠═f1785c3a-458b-11eb-1e6b-a70c50cb06ad
 # ╠═1a17be86-458e-11eb-0427-ed9eed786e36
@@ -366,10 +383,9 @@ isconcretetype(Thing)
 # ╠═f9d80824-462d-11eb-1881-c3c64d5c5e75
 # ╠═77a957a8-462e-11eb-2335-4b5e3ef05f89
 # ╠═8a9d51ae-4631-11eb-0f4e-6f08949371ad
+# ╠═00b1c82a-463c-11eb-3cea-d3e6dfe37e5c
 # ╠═f0b580ea-4631-11eb-1381-5572d7524cdb
 # ╠═12230fba-4632-11eb-28bd-9b820e28e99f
-# ╠═69036898-4632-11eb-0821-e7fdf7d0313e
 # ╠═bf99d72c-462e-11eb-16c1-0d0503dc7c31
-# ╠═86e83e7c-4634-11eb-1763-5358e9722429
-# ╠═23e89648-4634-11eb-2f1a-0d8d67a79266
-# ╠═84993928-458f-11eb-0c83-fd8e29c8c59f
+# ╟─c30d2648-464c-11eb-2bda-dd84facbbaa4
+# ╟─c9aebf0c-464c-11eb-2de2-8981885e767d
