@@ -12,10 +12,13 @@ mutable struct FighterJet
 
     "current position coordinate (x, y)"
     position::Tuple{Float64, Float64}
+
+    "whether the ship has wheels or not"
+    has_wheels::Bool
 end
 
 # Import generic functions
-import Vehicle: power_on!, power_off!, turn!, move!, position
+import Vehicle: power_on!, power_off!, turn!, move!, position, has_wheels
 
 # Implementation of Vehicle interface
 function power_on!(fj::FighterJet)
@@ -47,6 +50,10 @@ end
 
 function position(fj::FighterJet)
     fj.position
+end
+
+function has_wheels(fj::FighterJet)
+    fj.has_wheels
 end
 
 end # module
