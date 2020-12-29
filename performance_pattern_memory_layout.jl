@@ -153,6 +153,68 @@ Base.summarysize(records) / 1024^2
 # ╔═╡ 878c639a-49a3-11eb-228e-930b66f401ec
 Base.summarysize(sa) / 1024^2
 
+# ╔═╡ f7538efc-49c0-11eb-1384-3720dfa6c13a
+md"""
+One more thing we can do with `StructArray`s though is access nested data. For example, if we wanted to split out the cab fare data into its own struct that is then nested within the main `TripPayment` struct, we would have something like this:
+"""
+
+# ╔═╡ 2af76cba-49c1-11eb-0e72-5b3f10317074
+struct Fare
+	fare_amount::Float64
+	extra::Float64
+	mta_tax::Float64
+	tip_amount::Float64
+	tolls_amount::Float64
+	improvement_surcharge::Float64
+	total_amount::Float64
+end
+
+# ╔═╡ 2a4f5cc8-49c1-11eb-3a5b-f172e15ab072
+struct TripPaymentNested
+	vendor_id::Int
+	tpep_pickup_datetime::String
+	tpep_dropoff_datetime::String
+	passenger_count::Int
+	trip_distance::Float64
+	fare::Fare
+end
+
+# ╔═╡ 5e82910e-49c1-11eb-020c-3fb18a620b85
+function read_trip_payment_file_nested(file)
+	f = CSV.File(file, datarow = 2)
+	records = Vector{TripPayment}(undef, length(f))
+	for (i, row) in enumerate(f)
+		records[i] = TripPayment(
+			row.VendorID,
+			row.tpep_pickup_datetime,
+			row.tpep_dropoff_datetime,
+			row.passenger_count,
+			row.trip_distance,
+			Fare(
+				row.fare_amount,
+				row.extra,
+				row.mta_tax,
+				row.tip_amount,
+				row.tolls_amount,
+				row.improvement_surcharge,
+				row.total_amount,
+			)
+		)
+	end
+	return records
+end
+
+# ╔═╡ 694580ba-49c1-11eb-31f1-b317c34b6cfc
+records_nested = read_trip_payment_file("yellow_tripdata_2018-12_100k.csv")
+
+# ╔═╡ 9076f812-49c1-11eb-2de0-27ff194dc1df
+sa_nested = StructArray(records, unwrap = t -> t <: Fare);
+
+# ╔═╡ 9a03f394-49c1-11eb-240f-63e488b94fc3
+with_terminal() do
+	@btime mean($sa_nested.fare_amount)
+end
+
 # ╔═╡ Cell order:
 # ╟─e7313da2-499e-11eb-2b6b-0936e67fdafe
 # ╠═03a82e8e-4998-11eb-1c38-29a69676d4e3
@@ -175,4 +237,11 @@ Base.summarysize(sa) / 1024^2
 # ╟─6dba471c-49a4-11eb-1692-5d898633464b
 # ╠═8775673a-49a3-11eb-1030-6fa12bcceac8
 # ╠═878c639a-49a3-11eb-228e-930b66f401ec
+# ╟─f7538efc-49c0-11eb-1384-3720dfa6c13a
+# ╠═2a4f5cc8-49c1-11eb-3a5b-f172e15ab072
+# ╠═2af76cba-49c1-11eb-0e72-5b3f10317074
+# ╠═5e82910e-49c1-11eb-020c-3fb18a620b85
+# ╠═694580ba-49c1-11eb-31f1-b317c34b6cfc
+# ╠═9076f812-49c1-11eb-2de0-27ff194dc1df
+# ╠═9a03f394-49c1-11eb-240f-63e488b94fc3
 # ╠═009c0c72-499a-11eb-372d-eb6822f21f70
