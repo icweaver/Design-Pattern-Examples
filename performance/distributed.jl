@@ -159,8 +159,9 @@ println(mean(std_by_security(valuation)))
 
 Which gives the following results for our data:
 
-```julia 
-998.910 ms (120002 allocations: 4.48 GiB)
+```julia
+3.660774 seconds (488.49 k allocations: 4.496 GiB, 0.85% gc time)
+933.918 ms (120002 allocations: 4.48 GiB)
 0.2886727973019792
 ```
 """
@@ -229,17 +230,23 @@ end
 println(mean(std_by_security(valuation)))
 ```
 
-Which given the following results on four worker processes:
+Which gives the following results on 8 worker processes:
 
 ```julia
-  851.328 ms (1152 allocations: 51.77 KiB)
+3.274274 seconds (834.81 k allocations: 43.655 MiB, 1.72% gc time)
+761.408 ms (2326 allocations: 105.30 KiB)
 0.2886727973019792
 ```
-"""
 
-# ╔═╡ 8e55b475-ba90-48b7-be69-6851301e1a03
-md"""
-Not only is this faster, but it also uses significantly less memory.
+For comparison with the serial process above:
+
+```julia
+3.660774 seconds (488.49 k allocations: 4.496 GiB, 0.85% gc time)
+933.918 ms (120002 allocations: 4.48 GiB)
+0.2886727973019792
+```
+
+not only is this faster in loading and running computations on the data, but it also uses significantly less memory. The gap in performance will only increase as we increase the computational complexity, because then the fraction of the total time devoted to overhead from doing the parallel processing will not be as large.
 """
 
 # ╔═╡ ee52faf0-8891-475f-baaf-d45b2ef7b095
@@ -258,6 +265,5 @@ PlutoUI.TableOfContents(depth=4)
 # ╟─ddab47af-4f28-45f9-9e60-85a318976cc9
 # ╟─b72b8f3e-955e-4125-ac7f-c49060c879af
 # ╟─67541e29-503b-437f-95b7-9b4bae484108
-# ╟─8e55b475-ba90-48b7-be69-6851301e1a03
 # ╠═ee52faf0-8891-475f-baaf-d45b2ef7b095
 # ╠═da738f3c-49c5-11eb-11e5-0106cb5c2c82

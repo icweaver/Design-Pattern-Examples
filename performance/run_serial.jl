@@ -36,6 +36,8 @@ valuation = Array{Float64}(undef, nstates, nattr, nfiles)
 
 load_data!(nfiles, valuation, nfolders)
 
+@time load_data!(nfiles, valuation, nfolders)
+
 function std_by_security(valuation)
     (nstates, nattr, n) = size(valuation)
     result = zeros(n, nattr)
@@ -48,5 +50,23 @@ function std_by_security(valuation)
 end
 
 @btime std_by_security($valuation)
-
 println(mean(std_by_security(valuation)))
+
+function stats_by_security(valuation, funcs)
+    (nstates, nattr, n) = size(valuation)
+    results = zeros(n, nattr, length(funcs))
+    for i in 1:n
+        for j in 1:nattr
+            for (k, f) in enumerate(funcs)
+                results[i, j, k] = f(valuation[:, j, i])
+            end
+        end
+    end
+    return results
+end
+
+using StatsBase: skewness, kurtosis
+funcs = (std, skewness, kurtosis)
+@time result = stats_by_security(valuation, funcs)
+println(mean(result))
+
