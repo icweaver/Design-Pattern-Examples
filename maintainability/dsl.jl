@@ -234,10 +234,11 @@ md"""
 
 # ╔═╡ 9a96ecae-4d99-11eb-1514-0791f3691cef
 md"""
-To do this, we'll need a `walk` function to pass to `postwalk`:
+Now we can have a way of parsing the AST and matching our DSL to it. Let's do just that next:
 """
 
 # ╔═╡ c348d8f6-4d99-11eb-3215-99eb113e5359
+# Passed to postwalk to apply our DSL
 function walk(ex)
 	match_axiom = @capture(ex, axiom : sym_)
 	if match_axiom
@@ -255,6 +256,11 @@ function walk(ex)
 	return ex
 end
 
+# ╔═╡ 94e03524-4d9c-11eb-2a4b-515444e55829
+md"""
+Let's test out the parsing:
+"""
+
 # ╔═╡ 02e5281a-4d9b-11eb-0df9-cb89ad746b3f
 let
 	ex = quote
@@ -265,21 +271,38 @@ let
 	MacroTools.postwalk(walk, ex) |> rmlines
 end
 
+# ╔═╡ a2a97c24-4d9c-11eb-3917-5b709169512e
+md"""
+It looks like it's working! It's converting our DSL example above into plain Julia. Now we can make our DSL macro:
+"""
+
 # ╔═╡ 87fae7d0-4d99-11eb-0f6e-5dad00e53fd6
 macro lsys(ex)
 	ex = MacroTools.postwalk(walk, ex)
-	push!(ex.args, :( model ))
+	push!(ex.args, :( model )) # Add model to end of the block so we can see it!
 	return ex
 end
 
 # ╔═╡ 96b93fe2-4d99-11eb-20eb-8be1e35976c0
-@macroexpand(
-	algae_model2 = @lsys begin
-	axiom : A
-	rule  : A → AB
-	rule  : B → A
+macro_algae_model = @lsys begin
+axiom : A
+rule  : A → AB
+rule  : B → A
+end
+
+# ╔═╡ baf0eb0e-4d9d-11eb-3b98-278842b5e5ae
+with_terminal() do
+	macro_state = LState(macro_algae_model)
+	for i in 1:5
+		println(macro_state)
+		macro_state = next(macro_state)
 	end
-) |> rmlines
+end
+
+# ╔═╡ 51d8e314-4d9e-11eb-3707-316f90e375e8
+md"""
+It lives!
+"""
 
 # ╔═╡ bf442846-4d8f-11eb-3102-6bb13880a470
 PlutoUI.TableOfContents()
@@ -327,8 +350,12 @@ PlutoUI.TableOfContents()
 # ╟─7dcfa084-4d99-11eb-0915-43c192a85615
 # ╟─9a96ecae-4d99-11eb-1514-0791f3691cef
 # ╠═c348d8f6-4d99-11eb-3215-99eb113e5359
+# ╟─94e03524-4d9c-11eb-2a4b-515444e55829
 # ╠═02e5281a-4d9b-11eb-0df9-cb89ad746b3f
+# ╟─a2a97c24-4d9c-11eb-3917-5b709169512e
 # ╠═87fae7d0-4d99-11eb-0f6e-5dad00e53fd6
 # ╠═96b93fe2-4d99-11eb-20eb-8be1e35976c0
+# ╠═baf0eb0e-4d9d-11eb-3b98-278842b5e5ae
+# ╟─51d8e314-4d9e-11eb-3707-316f90e375e8
 # ╠═bf442846-4d8f-11eb-3102-6bb13880a470
 # ╠═b733a398-4d8f-11eb-18b2-451ff9c3a648
